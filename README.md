@@ -13,6 +13,9 @@ Os entregáveis são:
 
 ## Tasks:
 
+- [ ] BNF
+    - [ ] Adicinar tipo char
+    - [x] Permitir mais de uma Function no código
 - [ ] Scanner: flex **(Daniel)**
 - [ ] Parser puro: bison **(Valesca)**
 - [ ] Análise semântica de tipo e contexto: bison **(Daniel)**
