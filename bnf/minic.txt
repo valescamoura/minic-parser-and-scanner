@@ -1,4 +1,5 @@
-1) Function      ->  Type identifier ( ArgList ) CompoundStmt
+0) Function      ->  Type identifier ( ArgList ) CompoundStmt Function
+1) Function      ->  ε 
 
 2) ArgList       ->  Arg
 3) ArgList       ->  , Arg ArgList'
