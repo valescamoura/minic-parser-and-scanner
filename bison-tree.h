@@ -1,4 +1,5 @@
 #include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 typedef struct dt{
@@ -8,3 +9,4 @@ typedef struct dt{
 }DT;
 
 DT* createTree(char* value, int cnum, ...);
+void printTree(DT* t);
