@@ -58,3 +58,15 @@ void printTreeAux(DT* t, int tabn){
     }
 
 }
+
+DT* strToTree(char* value, int length){
+
+    char *s = (char*) malloc(sizeof(char)*length);
+    strcpy(s, value);
+    return createTree(s, 0);
+
+}
+
+void yyerror(char* msg){
+    printf("%s\n", msg);
+}
