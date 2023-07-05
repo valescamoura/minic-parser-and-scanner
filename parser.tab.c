@@ -132,8 +132,12 @@ enum yysymbol_kind_t
   YYSYMBOL_EOL = 28,                       /* EOL  */
   YYSYMBOL_YYACCEPT = 29,                  /* $accept  */
   YYSYMBOL_king = 30,                      /* king  */
-  YYSYMBOL_mag = 31,                       /* mag  */
-  YYSYMBOL_factor = 32                     /* factor  */
+  YYSYMBOL_expr = 31,                      /* expr  */
+  YYSYMBOL_rvalue = 32,                    /* rvalue  */
+  YYSYMBOL_compare = 33,                   /* compare  */
+  YYSYMBOL_mag = 34,                       /* mag  */
+  YYSYMBOL_term = 35,                      /* term  */
+  YYSYMBOL_factor = 36                     /* factor  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -461,16 +465,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  2
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   23
+#define YYLAST   40
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  29
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  4
+#define YYNNTS  8
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  9
+#define YYNRULES  24
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  15
+#define YYNSTATES  37
 
 /* YYMAXUTOK -- Last valid token kind.  */
 #define YYMAXUTOK   270
@@ -521,7 +525,9 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    23,    23,    24,    25,    26,    27,    28,    29,    30
+       0,    23,    23,    24,    26,    27,    29,    30,    32,    33,
+      34,    35,    36,    37,    39,    40,    41,    43,    44,    45,
+      47,    48,    49,    50,    51
 };
 #endif
 
@@ -540,7 +546,8 @@ static const char *const yytname[] =
   "\"end of file\"", "error", "\"invalid token\"", "NUMBER", "IDENTIFIER",
   "'+'", "'-'", "'*'", "'/'", "'='", "'}'", "'{'", "')'", "'('", "';'",
   "','", "'<'", "'>'", "FLOAT", "INT", "IF", "ELSE", "FOR", "WHILE", "EQ",
-  "LE", "GE", "DIFF", "EOL", "$accept", "king", "mag", "factor", YY_NULLPTR
+  "LE", "GE", "DIFF", "EOL", "$accept", "king", "expr", "rvalue",
+  "compare", "mag", "term", "factor", YY_NULLPTR
 };
 
 static const char *
@@ -550,7 +557,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-6)
+#define YYPACT_NINF (-14)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -564,8 +571,10 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -6,     7,    -6,    -6,    11,    11,    -5,    -6,    -6,    -6,
-      11,    11,    -6,    -6,    -6
+     -14,     2,   -14,   -14,    11,    13,    13,    24,     7,   -13,
+       4,    14,   -14,    24,   -14,   -14,   -14,    22,   -14,   -14,
+     -14,   -14,   -14,   -14,   -14,    13,    13,    13,    13,    13,
+     -14,   -14,     4,    14,    14,   -14,   -14
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -573,20 +582,22 @@ static const yytype_int8 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       2,     0,     1,     7,     0,     0,     0,     4,     8,     9,
-       0,     0,     3,     5,     6
+       2,     0,     1,    20,    21,     0,     0,     0,     0,     5,
+       7,    14,    17,     0,    21,    23,    24,     0,     3,     8,
+       9,    10,    11,    12,    13,     0,     0,     0,     0,     0,
+       4,    22,     6,    15,    16,    18,    19
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -6,    -6,    -6,    -2
+     -14,   -14,    18,   -14,   -14,    15,     6,    -5
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     1,     6,     7
+       0,     1,     8,     9,    25,    10,    11,    12
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -594,36 +605,46 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      10,    11,     8,     9,     0,     0,     0,     2,    13,    14,
-       3,     0,     4,     5,     3,     0,     4,     5,     0,     0,
-       0,     0,     0,    12
+      15,    16,     2,    19,    20,     3,     4,     5,     6,    26,
+      27,    21,    22,    23,    24,     7,     3,    14,     5,     6,
+      13,    28,    29,    35,    36,    17,     7,     3,     4,     5,
+       6,    30,    33,    34,    31,    18,     0,     7,     0,     0,
+      32
 };
 
 static const yytype_int8 yycheck[] =
 {
-       5,     6,     4,     5,    -1,    -1,    -1,     0,    10,    11,
-       3,    -1,     5,     6,     3,    -1,     5,     6,    -1,    -1,
-      -1,    -1,    -1,    28
+       5,     6,     0,    16,    17,     3,     4,     5,     6,     5,
+       6,    24,    25,    26,    27,    13,     3,     4,     5,     6,
+       9,     7,     8,    28,    29,     7,    13,     3,     4,     5,
+       6,    13,    26,    27,    12,    28,    -1,    13,    -1,    -1,
+      25
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,    30,     0,     3,     5,     6,    31,    32,    32,    32,
-       5,     6,    28,    32,    32
+       0,    30,     0,     3,     4,     5,     6,    13,    31,    32,
+      34,    35,    36,     9,     4,    36,    36,    31,    28,    16,
+      17,    24,    25,    26,    27,    33,     5,     6,     7,     8,
+      31,    12,    34,    35,    35,    36,    36
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    29,    30,    30,    31,    31,    31,    32,    32,    32
+       0,    29,    30,    30,    31,    31,    32,    32,    33,    33,
+      33,    33,    33,    33,    34,    34,    34,    35,    35,    35,
+      36,    36,    36,    36,    36
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     0,     3,     1,     3,     3,     1,     2,     2
+       0,     2,     0,     3,     3,     1,     3,     1,     1,     1,
+       1,     1,     1,     1,     1,     3,     3,     1,     3,     3,
+       1,     1,     3,     2,     2
 };
 
 
@@ -1086,50 +1107,140 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 3: /* king: king mag EOL  */
+  case 3: /* king: king expr EOL  */
 #line 24 "parser.y"
-               {printTree((yyvsp[-1].t));}
-#line 1093 "parser.tab.c"
+                {printTree((yyvsp[-1].t));}
+#line 1114 "parser.tab.c"
     break;
 
-  case 4: /* mag: factor  */
-#line 25 "parser.y"
-            {(yyval.t) = createTree("mag", 1, (yyvsp[0].t));}
-#line 1099 "parser.tab.c"
-    break;
-
-  case 5: /* mag: mag '+' factor  */
+  case 4: /* expr: IDENTIFIER '=' expr  */
 #line 26 "parser.y"
-                 {(yyval.t) = createTree("mag", 3, (yyvsp[-2].t), (yyvsp[-1].t), (yyvsp[0].t));}
-#line 1105 "parser.tab.c"
+                             {(yyval.t) = createTree("expr", 3, (yyvsp[-2].t), (yyvsp[-1].t), (yyvsp[0].t));}
+#line 1120 "parser.tab.c"
     break;
 
-  case 6: /* mag: mag '-' factor  */
+  case 5: /* expr: rvalue  */
 #line 27 "parser.y"
-                 {(yyval.t) = createTree("mag", 3, (yyvsp[-2].t), (yyvsp[-1].t), (yyvsp[0].t));}
-#line 1111 "parser.tab.c"
+                             {(yyval.t) = createTree("expr", 1, (yyvsp[0].t));}
+#line 1126 "parser.tab.c"
     break;
 
-  case 7: /* factor: NUMBER  */
-#line 28 "parser.y"
-                {(yyval.t) = createTree("factor", 1, (yyvsp[0].t));}
-#line 1117 "parser.tab.c"
-    break;
-
-  case 8: /* factor: '+' factor  */
+  case 6: /* rvalue: rvalue compare mag  */
 #line 29 "parser.y"
-             {(yyval.t) = createTree("factor", 2, (yyvsp[-1].t), (yyvsp[0].t));}
-#line 1123 "parser.tab.c"
+                            {(yyval.t) = createTree("rvalue", 3, (yyvsp[-2].t), (yyvsp[-1].t), (yyvsp[0].t));}
+#line 1132 "parser.tab.c"
     break;
 
-  case 9: /* factor: '-' factor  */
+  case 7: /* rvalue: mag  */
 #line 30 "parser.y"
-             {(yyval.t) = createTree("factor", 2, (yyvsp[-1].t), (yyvsp[0].t));}
-#line 1129 "parser.tab.c"
+                            {(yyval.t) = createTree("rvalue", 1, (yyvsp[0].t));}
+#line 1138 "parser.tab.c"
+    break;
+
+  case 8: /* compare: '<'  */
+#line 32 "parser.y"
+             {(yyval.t) = createTree("compare", 1, (yyvsp[0].t));}
+#line 1144 "parser.tab.c"
+    break;
+
+  case 9: /* compare: '>'  */
+#line 33 "parser.y"
+             {(yyval.t) = createTree("compare", 1, (yyvsp[0].t));}
+#line 1150 "parser.tab.c"
+    break;
+
+  case 10: /* compare: EQ  */
+#line 34 "parser.y"
+             {(yyval.t) = createTree("compare", 1, (yyvsp[0].t));}
+#line 1156 "parser.tab.c"
+    break;
+
+  case 11: /* compare: LE  */
+#line 35 "parser.y"
+             {(yyval.t) = createTree("compare", 1, (yyvsp[0].t));}
+#line 1162 "parser.tab.c"
+    break;
+
+  case 12: /* compare: GE  */
+#line 36 "parser.y"
+             {(yyval.t) = createTree("compare", 1, (yyvsp[0].t));}
+#line 1168 "parser.tab.c"
+    break;
+
+  case 13: /* compare: DIFF  */
+#line 37 "parser.y"
+             {(yyval.t) = createTree("compare", 1, (yyvsp[0].t));}
+#line 1174 "parser.tab.c"
+    break;
+
+  case 14: /* mag: term  */
+#line 39 "parser.y"
+               {(yyval.t) = createTree("mag", 1, (yyvsp[0].t));}
+#line 1180 "parser.tab.c"
+    break;
+
+  case 15: /* mag: mag '+' term  */
+#line 40 "parser.y"
+               {(yyval.t) = createTree("mag", 3, (yyvsp[-2].t), (yyvsp[-1].t), (yyvsp[0].t));}
+#line 1186 "parser.tab.c"
+    break;
+
+  case 16: /* mag: mag '-' term  */
+#line 41 "parser.y"
+               {(yyval.t) = createTree("mag", 3, (yyvsp[-2].t), (yyvsp[-1].t), (yyvsp[0].t));}
+#line 1192 "parser.tab.c"
+    break;
+
+  case 17: /* term: factor  */
+#line 43 "parser.y"
+                  {(yyval.t) = createTree("term", 1, (yyvsp[0].t));}
+#line 1198 "parser.tab.c"
+    break;
+
+  case 18: /* term: term '*' factor  */
+#line 44 "parser.y"
+                  {(yyval.t) = createTree("term", 3, (yyvsp[-2].t), (yyvsp[-1].t), (yyvsp[0].t));}
+#line 1204 "parser.tab.c"
+    break;
+
+  case 19: /* term: term '/' factor  */
+#line 45 "parser.y"
+                  {(yyval.t) = createTree("term", 3, (yyvsp[-2].t), (yyvsp[-1].t), (yyvsp[0].t));}
+#line 1210 "parser.tab.c"
+    break;
+
+  case 20: /* factor: NUMBER  */
+#line 47 "parser.y"
+                 {(yyval.t) = createTree("factor", 1, (yyvsp[0].t));}
+#line 1216 "parser.tab.c"
+    break;
+
+  case 21: /* factor: IDENTIFIER  */
+#line 48 "parser.y"
+                 {(yyval.t) = createTree("factor", 1, (yyvsp[0].t));}
+#line 1222 "parser.tab.c"
+    break;
+
+  case 22: /* factor: '(' expr ')'  */
+#line 49 "parser.y"
+                 {(yyval.t) = createTree("factor", 3, (yyvsp[-2].t), (yyvsp[-1].t), (yyvsp[0].t));}
+#line 1228 "parser.tab.c"
+    break;
+
+  case 23: /* factor: '+' factor  */
+#line 50 "parser.y"
+                 {(yyval.t) = createTree("factor", 2, (yyvsp[-1].t), (yyvsp[0].t));}
+#line 1234 "parser.tab.c"
+    break;
+
+  case 24: /* factor: '-' factor  */
+#line 51 "parser.y"
+                 {(yyval.t) = createTree("factor", 2, (yyvsp[-1].t), (yyvsp[0].t));}
+#line 1240 "parser.tab.c"
     break;
 
 
-#line 1133 "parser.tab.c"
+#line 1244 "parser.tab.c"
 
       default: break;
     }
@@ -1322,10 +1433,10 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 31 "parser.y"
+#line 52 "parser.y"
 
 
 int main(int argc, char** argv){
-    //yydebug = 1;
+    yydebug = 1;
     return yyparse();
 }

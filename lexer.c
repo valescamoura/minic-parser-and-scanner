@@ -880,12 +880,12 @@ YY_RULE_SETUP
 case 24:
 YY_RULE_SETUP
 #line 35 "scanner.l"
-{return NUMBER;}
+{yylval.t = createTree("number", 1, yylval.t); return NUMBER;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
 #line 36 "scanner.l"
-{return IDENTIFIER;}
+{yylval.t = createTree("identifier", 1, yylval.t); return IDENTIFIER;}
 	YY_BREAK
 case 26:
 /* rule 26 can match eol */
