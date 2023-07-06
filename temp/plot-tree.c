@@ -1,29 +1,15 @@
-#include "bison-tree.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct dt {
+    char* value;
+    int cnum;
+    struct dt** children;
+    int id; // Identificador único para cada nó
+} DT;
 
 int nodeIdCounter = 0; // Contador global para atribuir identificadores únicos
-
-DT* createTree(char* value, int cnum, ...){
-    va_list valist;
-
-    DT* t = (DT*) malloc(sizeof(DT));
-    t->value = value;
-    t->cnum = cnum;
-    t->children = NULL;
-    if (cnum > 0){
-        t->children = (DT**) malloc(sizeof(DT*)*cnum);
-    }
-    
-    va_start(valist, cnum);
-
-    for (int i=0; i < cnum; i++){
-        t->children[i] = va_arg(valist, DT*);
-    }
-
-    va_end(valist);
-    
-    return t;
-
-}
 
 void generateDot(FILE* fp, DT* node) {
     if (node == NULL)
@@ -76,8 +62,47 @@ void freeTree(DT* node) {
     free(node);
 }
 
-void generateTreeFile(DT* root) {
+
+int main() {
+    DT* root = (DT*)malloc(sizeof(DT));
+    root->value = "A";
+    root->cnum = 2;
+    root->children = (DT**)malloc(root->cnum * sizeof(DT*));
+
+    DT* child1 = (DT*)malloc(sizeof(DT));
+    child1->value = "B";
+    child1->cnum = 1;
+    child1->children = (DT**)malloc(child1->cnum * sizeof(DT*));
+
+    DT* child2 = (DT*)malloc(sizeof(DT));
+    child2->value = "C";
+    child2->cnum = 1;
+    child2->children = (DT**)malloc(child2->cnum * sizeof(DT*));
+
+    DT* grandchild = (DT*)malloc(sizeof(DT));
+    grandchild->value = "D";
+    grandchild->cnum = 0;
+    grandchild->children = NULL;
+
+    DT* grandchild2 = (DT*)malloc(sizeof(DT));
+    grandchild2->value = "D";
+    grandchild2->cnum = 0;
+    grandchild2->children = NULL;
+
+
+    child2->children[0] = grandchild;
+    child1->children[0] = grandchild2;
+
+    root->children[0] = child1;
+    root->children[1] = child2;
+
     generateDotFile(root, "tree.dot");
+
     // Chame o Graphviz para gerar a imagem
     system("dot -Tpng -o tree.png tree.dot");
+
+    // Libere a memória alocada
+    freeTree(root);
+
+    return 0;
 }
