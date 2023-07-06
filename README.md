@@ -20,3 +20,5 @@ Os entregáveis são:
 - [ ] Parser puro: bison **(Valesca)**
 - [ ] Análise semântica de tipo e contexto: bison **(Daniel)**
 - [ ] Conversão de for para goto: bison **(Valesca)**
+- [ ] Fazer a função de print utilizando graphviz
+- [ ] Montar um makefile
