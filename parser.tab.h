@@ -39,7 +39,7 @@
 # define YY_YY_PARSER_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 1
+# define YYDEBUG 0
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -56,17 +56,19 @@ extern int yydebug;
     YYUNDEF = 257,                 /* "invalid token"  */
     NUMBER = 258,                  /* NUMBER  */
     IDENTIFIER = 259,              /* IDENTIFIER  */
-    FLOAT = 260,                   /* FLOAT  */
-    INT = 261,                     /* INT  */
-    IF = 262,                      /* IF  */
-    ELSE = 263,                    /* ELSE  */
-    FOR = 264,                     /* FOR  */
-    WHILE = 265,                   /* WHILE  */
-    EQ = 266,                      /* EQ  */
-    LE = 267,                      /* LE  */
-    GE = 268,                      /* GE  */
-    DIFF = 269,                    /* DIFF  */
-    EOL = 270                      /* EOL  */
+    CHAR_VALUE = 260,              /* CHAR_VALUE  */
+    FLOAT = 261,                   /* FLOAT  */
+    INT = 262,                     /* INT  */
+    CHAR = 263,                    /* CHAR  */
+    IF = 264,                      /* IF  */
+    ELSE = 265,                    /* ELSE  */
+    FOR = 266,                     /* FOR  */
+    WHILE = 267,                   /* WHILE  */
+    EQ = 268,                      /* EQ  */
+    LE = 269,                      /* LE  */
+    GE = 270,                      /* GE  */
+    DIFF = 271,                    /* DIFF  */
+    EOL = 272                      /* EOL  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -79,7 +81,7 @@ union YYSTYPE
 
     struct dt *t;
 
-#line 83 "parser.tab.h"
+#line 85 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

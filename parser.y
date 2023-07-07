@@ -52,6 +52,6 @@ factor: NUMBER   {$$ = createTree("factor", 1, $1);}
 %%
 
 int main(int argc, char** argv){
-    yydebug = 1;
+    //yydebug = 1;
     return yyparse();
 }

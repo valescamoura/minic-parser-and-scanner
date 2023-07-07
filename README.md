@@ -11,6 +11,12 @@ Os entregáveis são:
 - Relatório descrevendo a atuação de cada membro, em caso de trabalho feito em dupla (não serão aceitas entregas feitas por mais do que dois componentes)
 
 
+## Passos para compilar:
+
+flex -o lexer.c scanner.l
+bison -d parser.y
+gcc -o parser_program parser.tab.c lexer.c bison-tree.c
+
 ## Tasks:
 
 - [ ] BNF
