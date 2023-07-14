@@ -67,8 +67,7 @@ extern int yydebug;
     EQ = 268,                      /* EQ  */
     LE = 269,                      /* LE  */
     GE = 270,                      /* GE  */
-    DIFF = 271,                    /* DIFF  */
-    EOL = 272                      /* EOL  */
+    DIFF = 271                     /* DIFF  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -81,7 +80,7 @@ union YYSTYPE
 
     struct dt *t;
 
-#line 85 "parser.tab.h"
+#line 84 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

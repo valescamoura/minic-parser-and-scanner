@@ -14,7 +14,6 @@
 %token <t> FLOAT INT CHAR
 %token <t> IF ELSE FOR WHILE
 %token <t> EQ LE GE DIFF
-%token EOL
 
 %type <t> factor mag term compare expr rvalue stmt_list compoundstmt stmt whileStmt optExpr forStmt
 %type <t> type identlist arg arglist function declaration 
@@ -22,7 +21,7 @@
 //define rules
 %%
 root: 
-| function EOL {generateTreeFile($1);}
+| function YYEOF {generateTreeFile($1);}
 
 function: type IDENTIFIER '(' arglist ')' compoundstmt {$$ = createTree("function", 6, $1, $2, $3, $4, $5, $6);}
 
@@ -37,6 +36,12 @@ stmt: expr ';' {$$ = createTree("stmt", 2, $1, $2);}
 | compoundstmt {$$ = createTree("stmt", 1, $1);}
 | forStmt     {$$ = createTree("stmt", 1, $1);}
 | declaration {$$ = createTree("stmt", 1, $1);}
+//| ifStmt      {$$ = createTree("stmt", 1, $1);}
+
+//ifStmt: IF '(' expr ')' stmt elsePart {$$ = createTree("ifStmt", 6, $1, $2, $3, $4, $5, $6);}
+
+//elsePart: ELSE stmt {$$ = createTree("elsePart", 2, $1, $2);}
+//|                   {DT *t = createTree("epsilon", 0);$$ = createTree("elsePart", 1, t);}
 
 declaration: type identlist ';' {$$ = createTree("declaration", 3, $1, $2, $3);}
 

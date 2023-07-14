@@ -36,7 +36,7 @@
 [0-9]+|[0-9]*"."[0-9]+    {yylval.t = createTree("number", 1, yylval.t); return NUMBER;}
 '[A-Za-z]'                {return CHAR_VALUE;}
 [A-Za-z][A-Za-z0-9]*      {yylval.t = createTree("identifier", 1, yylval.t); return IDENTIFIER;}
-\n                        {return EOL;}
-[ \t]                     {}
+<<EOF>>                   {return YYEOF;}
+[ \t\n]                     {}
 .                         {printf("Character not matched: %c\n", *yytext);}
 %%

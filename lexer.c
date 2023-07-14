@@ -374,8 +374,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 31
-#define YY_END_OF_BUFFER 32
+#define YY_NUM_RULES 30
+#define YY_END_OF_BUFFER 31
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -385,8 +385,8 @@ struct yy_trans_info
 	};
 static const flex_int16_t yy_accept[60] =
     {   0,
-        0,    0,   32,   30,   29,   28,   30,   30,    5,    6,
-       10,   12,    3,   13,   30,   11,   25,    4,    2,    9,
+        0,    0,   31,   29,   28,   28,   29,   29,    5,    6,
+       10,   12,    3,   13,   29,   11,   25,    4,    2,    9,
         1,   27,   27,   27,   27,   27,   27,    7,    8,   24,
         0,   25,    0,   25,   22,   21,   23,   27,   27,   27,
        27,   27,   16,   27,   27,   26,   27,   27,   27,   18,
@@ -488,10 +488,10 @@ static const flex_int16_t yy_chk[105] =
     } ;
 
 /* Table of booleans, true if rule could match eol. */
-static const flex_int32_t yy_rule_can_match_eol[32] =
+static const flex_int32_t yy_rule_can_match_eol[31] =
     {   0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,     };
+    0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,     };
 
 static yy_state_type yy_last_accepting_state;
 static char *yy_last_accepting_cpos;
@@ -901,30 +901,27 @@ YY_RULE_SETUP
 #line 38 "scanner.l"
 {yylval.t = createTree("identifier", 1, yylval.t); return IDENTIFIER;}
 	YY_BREAK
+case YY_STATE_EOF(INITIAL):
+#line 39 "scanner.l"
+{return YYEOF;}
+	YY_BREAK
 case 28:
 /* rule 28 can match eol */
-YY_RULE_SETUP
-#line 39 "scanner.l"
-{return EOL;}
-	YY_BREAK
-case 29:
 YY_RULE_SETUP
 #line 40 "scanner.l"
 {}
 	YY_BREAK
-case 30:
+case 29:
 YY_RULE_SETUP
 #line 41 "scanner.l"
 {printf("Character not matched: %c\n", *yytext);}
 	YY_BREAK
-case 31:
+case 30:
 YY_RULE_SETUP
 #line 42 "scanner.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 926 "lexer.c"
-case YY_STATE_EOF(INITIAL):
-	yyterminate();
+#line 925 "lexer.c"
 
 	case YY_END_OF_BUFFER:
 		{
