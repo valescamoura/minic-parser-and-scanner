@@ -57,3 +57,4 @@ dkms.conf
 parser-tag.c
 parser-tag.h
 lex.yy.c
+lexer.c
