@@ -1,0 +1,4 @@
+
+- 1) goto: forma id/label na árvore
+- 2) if/else: warning
+- #) tipo char: podem ser feitas operações com o tipo char?

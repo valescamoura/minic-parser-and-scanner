@@ -20,5 +20,6 @@ void generateTreeFile(DT* root);
 void printTree(DT* t);
 void yyerror(char* msg);
 DT* strToTree(char* value, int length);
+void turnLoopsIntoGoto(DT* root);
 
 #endif

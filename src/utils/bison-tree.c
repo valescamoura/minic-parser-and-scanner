@@ -77,11 +77,16 @@ void freeTree(DT* node) {
     free(node);
 }
 
+void turnLoopsIntoGoto(DT* root) {}
+
 void generateTreeFile(DT* root) {
+    turnLoopsIntoGoto(root);
     generateDotFile(root, "tree.dot");
     // Chame o Graphviz para gerar a imagem
     system("dot -Tpng -o tree.png tree.dot");
+    system("dot -Tpdf -o tree.pdf tree.dot");
 }
+
 void printTree(DT* t){
 
     if (t != NULL){

@@ -1,7 +1,7 @@
 //variable definitions and data structure include
 %{
 #include <stdio.h>
-#include "bison-tree.h"
+#include "src/utils/bison-tree.h"
 #define variable 'YYDEBUG'
 %}
 

@@ -1,7 +1,7 @@
 %option noyywrap nodefault yylineno
 %{
 #include <stdlib.h>
-#include "bison-tree.h"
+#include "src/utils/bison-tree.h"
 #include "parser.tab.h"
 
 #define YY_USER_ACTION yylval.t = strToTree(yytext, yyleng);
