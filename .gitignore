@@ -54,3 +54,6 @@ dkms.conf
 # Output files
 *.dot
 *.png
+parser-tag.c
+parser-tag.h
+lex.yy.c
