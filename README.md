@@ -13,8 +13,8 @@ Os entregáveis são:
 
 ## Passos para compilar:
 
-flex -o lexer.c scanner.l
-bison -d parser.y
+flex -o lexer.c src/scanner.l
+bison -d src/parser.y
 gcc -o parser.out parser.tab.c lexer.c bison-tree.c
 
 ## Tasks:
