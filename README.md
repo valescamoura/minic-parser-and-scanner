@@ -15,7 +15,7 @@ Os entregáveis são:
 
 flex -o lexer.c scanner.l
 bison -d parser.y
-gcc -o parser_program parser.tab.c lexer.c bison-tree.c
+gcc -o parser.out parser.tab.c lexer.c bison-tree.c
 
 ## Tasks:
 

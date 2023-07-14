@@ -16,12 +16,47 @@
 %token <t> EQ LE GE DIFF
 %token EOL
 
-%type <t> factor mag term compare expr rvalue
+%type <t> factor mag term compare expr rvalue stmt_list compoundstmt stmt whileStmt optExpr forStmt
+%type <t> type identlist arg arglist function declaration 
 
 //define rules
 %%
-king: 
-| king expr EOL {printTree($2);}
+root: 
+| function EOL {generateTreeFile($1);}
+
+function: type IDENTIFIER '(' arglist ')' compoundstmt {$$ = createTree("function", 6, $1, $2, $3, $4, $5, $6);}
+
+arglist: arg      {$$ = createTree("arglist", 1, $1);}
+| arglist ',' arg {$$ = createTree("arglist", 3, $1, $2, $3);}
+
+arg: type IDENTIFIER {$$ = createTree("arg", 2, $1, $2);}
+
+stmt: expr ';' {$$ = createTree("stmt", 2, $1, $2);}
+| whileStmt {$$ = createTree("stmt", 1, $1);}
+| ';'       {$$ = createTree("stmt", 1, $1);}
+| compoundstmt {$$ = createTree("stmt", 1, $1);}
+| forStmt     {$$ = createTree("stmt", 1, $1);}
+| declaration {$$ = createTree("stmt", 1, $1);}
+
+declaration: type identlist ';' {$$ = createTree("declaration", 3, $1, $2, $3);}
+
+identlist: IDENTIFIER ',' identlist {$$ = createTree("identlist", 3, $1, $2, $3);}
+| IDENTIFIER                        {$$ = createTree("identlist", 1, $1);}
+
+type: INT {$$ = createTree("type", 1, $1);}
+| FLOAT   {$$ = createTree("type", 1, $1);}
+
+forStmt: FOR '(' expr ';' optExpr ';' optExpr ')' stmt {$$ = createTree("forStmt", 9, $1, $2, $3, $4, $5, $6, $7, $8, $9);}
+
+optExpr: expr {$$ = createTree("optExpr", 1, $1);}
+|             {DT *t = createTree("epsilon", 0);$$ = createTree("optExpr", 1, t);}
+
+whileStmt: WHILE '(' expr ')' stmt {$$ = createTree("whileStmt", 5, $1, $2, $3, $4, $5);}
+
+compoundstmt: '{' stmt_list '}' {$$ = createTree("compoundstmt", 3, $1, $2, $3);}
+
+stmt_list: stmt_list stmt {$$ = createTree("stmt_list", 2, $1, $2);}
+|                         {DT *t = createTree("epsilon", 0);$$ = createTree("stmt_list", 1, t);}
 
 expr: IDENTIFIER '=' expr    {$$ = createTree("expr", 3, $1, $2, $3);}
 | rvalue                     {$$ = createTree("expr", 1, $1);}
