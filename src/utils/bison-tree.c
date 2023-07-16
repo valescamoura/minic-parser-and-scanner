@@ -131,4 +131,5 @@ DT* strToTree(char* value, int length){
 
 void yyerror(char* msg){
     printf("%s\n", msg);
+    exit(1);
 }
