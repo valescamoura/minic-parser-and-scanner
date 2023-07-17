@@ -34,9 +34,9 @@
 ">="                      {return GE;}
 "!="                      {return DIFF;} 
 [0-9]+|[0-9]*"."[0-9]+    {yylval.t = createTree("number", 1, yylval.t); return NUMBER;}
-'[A-Za-z]'                {return CHAR_VALUE;}
+'[A-Za-z]'                {yylval.t = createTree("char", 1, yylval.t); return CHAR_VALUE;}
 [A-Za-z][A-Za-z0-9]*      {yylval.t = createTree("identifier", 1, yylval.t); return IDENTIFIER;}
 <<EOF>>                   {return YYEOF;}
 [ \t\n]                     {}
-.                         {printf("Character not matched: %c\n", *yytext);}
+.                         {printf("Character not matched: %c\n", *yytext);exit(1);}
 %%

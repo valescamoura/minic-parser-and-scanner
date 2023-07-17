@@ -16,12 +16,15 @@
 %token <t> EQ LE GE DIFF
 
 %type <t> factor mag term compare expr rvalue stmt_list compoundstmt stmt whileStmt optExpr forStmt
-%type <t> type identlist arg arglist function declaration 
+%type <t> type identlist arg arglist function declaration ifStmt elsePart functionList
 
 //define rules
 %%
 root: 
-| function YYEOF {generateTreeFile($1);}
+| functionList YYEOF {generateTreeFile($1);}
+
+functionList: functionList function     {$$ = createTree("functionlist", 2, $1, $2);}
+|                                       {DT *t = createTree("epsilon", 0);$$ = createTree("functionList", 1, t);}
 
 function: type IDENTIFIER '(' arglist ')' compoundstmt {$$ = createTree("function", 6, $1, $2, $3, $4, $5, $6);}
 
@@ -36,12 +39,12 @@ stmt: expr ';' {$$ = createTree("stmt", 2, $1, $2);}
 | compoundstmt {$$ = createTree("stmt", 1, $1);}
 | forStmt     {$$ = createTree("stmt", 1, $1);}
 | declaration {$$ = createTree("stmt", 1, $1);}
-//| ifStmt      {$$ = createTree("stmt", 1, $1);}
+| ifStmt      {$$ = createTree("stmt", 1, $1);}
 
-//ifStmt: IF '(' expr ')' stmt elsePart {$$ = createTree("ifStmt", 6, $1, $2, $3, $4, $5, $6);}
+ifStmt: IF '(' expr ')' stmt elsePart {$$ = createTree("ifStmt", 6, $1, $2, $3, $4, $5, $6);}
 
-//elsePart: ELSE stmt {$$ = createTree("elsePart", 2, $1, $2);}
-//|                   {DT *t = createTree("epsilon", 0);$$ = createTree("elsePart", 1, t);}
+elsePart: ELSE stmt {$$ = createTree("elsePart", 2, $1, $2);}
+|                   {DT *t = createTree("epsilon", 0);$$ = createTree("elsePart", 1, t);}
 
 declaration: type identlist ';' {$$ = createTree("declaration", 3, $1, $2, $3);}
 
@@ -50,6 +53,7 @@ identlist: IDENTIFIER ',' identlist {$$ = createTree("identlist", 3, $1, $2, $3)
 
 type: INT {$$ = createTree("type", 1, $1);}
 | FLOAT   {$$ = createTree("type", 1, $1);}
+| CHAR    {$$ = createTree("type", 1, $1);}
 
 forStmt: FOR '(' expr ';' optExpr ';' optExpr ')' stmt {$$ = createTree("forStmt", 9, $1, $2, $3, $4, $5, $6, $7, $8, $9);}
 
@@ -86,6 +90,7 @@ term: factor      {$$ = createTree("term", 1, $1);}
 
 factor: NUMBER   {$$ = createTree("factor", 1, $1);}
 | IDENTIFIER     {$$ = createTree("factor", 1, $1);}
+| CHAR_VALUE     {$$ = createTree("factor", 1, $1);}
 | '(' expr ')'   {$$ = createTree("factor", 3, $1, $2, $3);}
 | '+' factor     {$$ = createTree("factor", 2, $1, $2);}
 | '-' factor     {$$ = createTree("factor", 2, $1, $2);}
