@@ -34,12 +34,12 @@ arglist: arg      {$$ = createTree("arglist", 1, $1);}
 arg: type IDENTIFIER {$$ = createTree("arg", 2, $1, $2);}
 
 stmt: expr ';' {$$ = createTree("stmt", 2, $1, $2);}
-| whileStmt {$$ = createTree("stmt", 1, $1);}
-| ';'       {$$ = createTree("stmt", 1, $1);}
+| whileStmt    {$$ = createTree("stmt", 1, $1);}
+| ';'          {$$ = createTree("stmt", 1, $1);}
 | compoundstmt {$$ = createTree("stmt", 1, $1);}
-| forStmt     {$$ = createTree("stmt", 1, $1);}
-| declaration {$$ = createTree("stmt", 1, $1);}
-| ifStmt      {$$ = createTree("stmt", 1, $1);}
+| forStmt      {$$ = createTree("stmt", 1, $1);}
+| declaration  {$$ = createTree("stmt", 1, $1);}
+| ifStmt       {$$ = createTree("stmt", 1, $1);}
 
 ifStmt: IF '(' expr ')' stmt elsePart {$$ = createTree("ifStmt", 6, $1, $2, $3, $4, $5, $6);}
 
