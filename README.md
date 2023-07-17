@@ -13,18 +13,26 @@ Os entregáveis são:
 
 ## Passos para compilar:
 
-flex -o lexer.c src/scanner.l
-bison -d src/parser.y
-gcc -o parser.out parser.tab.c lexer.c src/utils/bison-tree.c
+```./compile.sh```
+
+ou:
+
+- flex -o lexer.c src/scanner.l
+- bison -d src/parser.y
+- gcc -o parser.out parser.tab.c lexer.c src/utils/bison-tree.c
+
+## Como executar
+
+```./run.sh data/example.mc```
 
 ## Tasks:
 
-- [ ] BNF
-    - [ ] Adicinar tipo char
+- [x] BNF
+    - [x] Adicinar tipo char
     - [x] Permitir mais de uma Function no código
-- [ ] Scanner: flex **(Daniel)**
-- [ ] Parser puro: bison **(Valesca)**
+- [x] Scanner: flex **(Daniel)**
+- [x] Parser puro: bison **(Daniel)**
 - [ ] Análise semântica de tipo e contexto: bison **(Daniel)**
 - [ ] Conversão de for para goto: bison **(Valesca)**
-- [ ] Fazer a função de print utilizando graphviz
-- [ ] Montar um makefile
+- [x] Fazer a função de visualização da árvore utilizando graphviz. **(Valesca)**
+- [x] Montar shell script e instruções de compilação. **(Valesca)**
