@@ -6,13 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-enum typevalue {
-    CHARTYPE = 0,
-    INTTYPE,
-    FLOATTYPE,
-    ERRORTYPE
-};
+#include "symbol-table.h"
 
 typedef struct dt{
     char* value;
