@@ -118,18 +118,36 @@ void set_unknowns(ST* st, int type){
 
 }
 
-operation_type(int type1, int type2){
+int check_operation_type(int type1, int type2, char operation, int lineno){
 
     if (type1 == CHARTYPE && type2 == CHARTYPE){
         return CHARTYPE;
     }
     if (type1 == CHARTYPE || type2 == CHARTYPE){
+        printf("Error: invalid operation %c at line %d between types %s and %s\n", operation, lineno, get_type_name(type1), get_type_name(type2));
         return ERRORTYPE;
     }
 
     return (type1 > type2) ? type1 : type2;
 
 }
+
+/* int check_assignment(int type_var, int type_expr, int lineno){
+
+    if (type_var == CHARTYPE && type_expr == CHARTYPE){
+        return 0;
+    }
+    if (type_var == CHARTYPE || type_expr == CHARTYPE){
+        
+    }
+
+    if (type_var < type_expr){
+        return 1;
+    }
+
+    return 0;
+
+} */
 
 char* get_type_name(int type){
 
@@ -143,6 +161,9 @@ char* get_type_name(int type){
         break;
     case FLOATTYPE:
         return "float";
+        break;
+    case ERRORTYPE:
+        return "error";
         break;
     default:
         return "unknown";

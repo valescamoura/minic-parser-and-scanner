@@ -29,7 +29,10 @@ int error_comp;
 %%
 root: 
 | functionList YYEOF {
-    if (error_comp == 1) printf("Compilation error\n"); return 1;
+    if (error_comp == 1) {
+        printf("Compilation error\n");
+        return 1;
+    }
     generateTreeFile($1); 
 }
 
@@ -101,11 +104,28 @@ compoundstmt: '{' stmt_list '}' {$$ = createTree("compoundstmt", 3, $1, $2, $3);
 stmt_list: stmt_list stmt {$$ = createTree("stmt_list", 2, $1, $2);}
 |                         {DT *t = createTree("epsilon", 0);$$ = createTree("stmt_list", 1, t);}
 
-expr: IDENTIFIER '=' expr    {$$ = createTree("expr", 3, $1, $2, $3);}
-| rvalue                     {$$ = createTree("expr", 1, $1);}
+expr: IDENTIFIER '=' expr    {
+    $$ = createTree("expr", 3, $1, $2, $3);
+    SYB* sb = search_for_symbol(st, $1->children[0]->value);
+    if (!sb){
+        error_comp = 1;
+        printf("Error: use of undeclared variable \"%s\" at line %d\n", $1->children[0]->value, yylineno);
+    }else{
+        if (sb->type != $3->type && $3->type != ERRORTYPE){
+            error_comp = 1;
+            printf("Error: invalid assignment at line %d expression of type %s cannot be assigned to variable of type %s\n", yylineno, get_type_name($3->type), get_type_name(sb->type));
+        }
+    }
+    
+}
+| rvalue                     {$$ = createTree("expr", 1, $1); $$->type = $1->type;}
 
-rvalue: rvalue compare mag  {$$ = createTree("rvalue", 3, $1, $2, $3);}
-| mag                       {$$ = createTree("rvalue", 1, $1);}
+rvalue: rvalue compare mag  {
+    $$ = createTree("rvalue", 3, $1, $2, $3); 
+    int check = check_operation_type($1->type, $3->type, $2->children[0]->value[0], yylineno);
+    if (check != ERRORTYPE) $$->type = INTTYPE;
+}
+| mag                       {$$ = createTree("rvalue", 1, $1); $$->type = $1->type;}
 
 compare: '<' {$$ = createTree("compare", 1, $1);}
 | '>'        {$$ = createTree("compare", 1, $1);}
@@ -115,12 +135,12 @@ compare: '<' {$$ = createTree("compare", 1, $1);}
 | DIFF       {$$ = createTree("compare", 1, $1);} 
 
 mag: term      {$$ = createTree("mag", 1, $1); $$->type = $1->type;}
-| mag '+' term {$$ = createTree("mag", 3, $1, $2, $3); $$->type = operation_type($1->type, $2->type);}
-| mag '-' term {$$ = createTree("mag", 3, $1, $2, $3); $$->type = operation_type($1->type, $2->type);}
+| mag '+' term {$$ = createTree("mag", 3, $1, $2, $3); $$->type = check_operation_type($1->type, $3->type, '+', yylineno);}
+| mag '-' term {$$ = createTree("mag", 3, $1, $2, $3); $$->type = check_operation_type($1->type, $3->type, '-', yylineno);}
 
 term: factor      {$$ = createTree("term", 1, $1); $$->type = $1->type;}
-| term '*' factor {$$ = createTree("term", 3, $1, $2, $3); $$->type = operation_type($1->type, $2->type);}
-| term '/' factor {$$ = createTree("term", 3, $1, $2, $3); $$->type = operation_type($1->type, $2->type);}
+| term '*' factor {$$ = createTree("term", 3, $1, $2, $3); $$->type = check_operation_type($1->type, $3->type, '*', yylineno);}
+| term '/' factor {$$ = createTree("term", 3, $1, $2, $3); $$->type = check_operation_type($1->type, $3->type, '/', yylineno);}
 
 factor: NUMBER   {$$ = createTree("factor", 1, $1); $$->type = $1->type;}
 | IDENTIFIER     {

@@ -34,7 +34,7 @@
 "<="                      {return LE;}
 ">="                      {return GE;}
 "!="                      {return DIFF;} 
-[0-9]*"."?[0-9]+(e[+-]?[0-9]+)? {
+[0-9]*"."[0-9]+(e[+-]?[0-9]+)? {
     yylval.t = createTree("number", 1, yylval.t);
     yylval.t->type = FLOATTYPE;
     return NUMBER;
