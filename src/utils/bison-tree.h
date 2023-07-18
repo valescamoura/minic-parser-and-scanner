@@ -7,9 +7,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+enum typevalue {
+    CHARTYPE = 0,
+    INTTYPE,
+    FLOATTYPE,
+    ERRORTYPE
+};
+
 typedef struct dt{
     char* value;
     int cnum;
+    int type;
     struct dt **children;
     int id; // Identificador único para cada nó
 }DT;

@@ -9,6 +9,7 @@ DT* createTree(char* value, int cnum, ...){
     DT* t = (DT*) malloc(sizeof(DT));
     t->value = value;
     t->cnum = cnum;
+    t->type = ERRORTYPE;
     t->children = NULL;
     if (cnum > 0){
         t->children = (DT**) malloc(sizeof(DT*)*cnum);
