@@ -1,12 +1,5 @@
 #include "symbol-table.h"
 
-enum typevalue {
-    CHARTYPE = 0,
-    INTTYPE,
-    FLOATTYPE,
-    ERRORTYPE
-};
-
 void insert_on_collision_list(ST* table, SYB* symbol, unsigned long index);
 
 SYB* create_symbol(char* name, int type){
@@ -104,6 +97,57 @@ int insert_symbol(ST* table, char* name, int type){
     }
 
     return 0;
+
+}
+
+void set_unknowns(ST* st, int type){
+    
+    for (int i = 0; i < st->size; i++){
+
+        if (st->items[i] != NULL){
+            if (st->items[i]->type == UNKNOWNTYPE) st->items[i]->type = type;
+            SLLT* head = st->collision_lists[i];
+            if (head != NULL){
+                for(head; head != NULL; head = head->next){
+                    if (head->symbol->type == UNKNOWNTYPE) head->symbol->type = type;
+                }
+            }
+        }
+
+    }
+
+}
+
+operation_type(int type1, int type2){
+
+    if (type1 == CHARTYPE && type2 == CHARTYPE){
+        return CHARTYPE;
+    }
+    if (type1 == CHARTYPE || type2 == CHARTYPE){
+        return ERRORTYPE;
+    }
+
+    return (type1 > type2) ? type1 : type2;
+
+}
+
+char* get_type_name(int type){
+
+    switch (type)
+    {
+    case CHARTYPE:
+        return "char";
+        break;
+    case INTTYPE:
+        return "int";
+        break;
+    case FLOATTYPE:
+        return "float";
+        break;
+    default:
+        return "unknown";
+        break;
+    }
 
 }
 

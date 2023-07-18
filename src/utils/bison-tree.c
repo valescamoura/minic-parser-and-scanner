@@ -1,5 +1,6 @@
 #include "bison-tree.h"
 
+
 int nodeIdCounter = 0; // Contador global para atribuir identificadores únicos
 void printTreeAux(DT* t, int tabn);
 
@@ -130,7 +131,7 @@ DT* strToTree(char* value, int length){
 
 }
 
-void yyerror(char* msg){
+void yyerror(ST* st, char* msg){
     printf("%s\n", msg);
     exit(1);
 }

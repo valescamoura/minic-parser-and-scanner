@@ -16,11 +16,14 @@ typedef struct dt{
     int id; // Identificador único para cada nó
 }DT;
 
+extern int yylineno;
+extern int error_found;
+
 DT* createTree(char* value, int cnum, ...);
 void freeTree(DT* node);
 void generateTreeFile(DT* root);
 void printTree(DT* t);
-void yyerror(char* msg);
+void yyerror(ST* st, char* msg);
 DT* strToTree(char* value, int length);
 void turnLoopsIntoGoto(DT* root);
 
