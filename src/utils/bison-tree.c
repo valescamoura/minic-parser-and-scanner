@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 int nodeIdCounter = 0; // Contador global para atribuir identificadores únicos
 
 void printTreeAux(DT* t, int tabn);
@@ -23,6 +24,7 @@ DT* createTree(char* value, int cnum, ...){
     t->value = value; 
     t->cnum = cnum;
     t->id = nodeIdCounter;
+    t->type = ERRORTYPE;
     t->children = NULL;
     if (cnum > 0){
         t->children = (DT**) malloc(sizeof(DT*)*cnum);
@@ -141,7 +143,7 @@ DT* strToTree(char* value, int length){
 
 }
 
-void yyerror(char* msg){
+void yyerror(ST* st, char* msg){
     printf("%s\n", msg);
     exit(1);
 }
