@@ -3,10 +3,11 @@
 #include <stdio.h>
 #include "src/utils/bison-tree.h"
 #include "src/utils/symbol-table.h"
+#include "src/utils/semantics.h"
 #define variable 'YYDEBUG'
 #define TABLESIZE 5000
 
-int error_comp;
+int error_count;
 
 %}
 
@@ -14,22 +15,23 @@ int error_comp;
     struct dt *t;
 }
 
-%parse-param{ ST* st };
+%parse-param{ ST* st_func } {ST* st_vars}
 
-%token <t> NUMBER IDENTIFIER CHAR_VALUE
+%token <t> NUMBER IDENTIFIER CHAR_VALUE RETURN
 %token <t> '+' '-' '*' '/' '=' '}' '{' ')' '(' ';' ',' '<' '>'
 %token <t> FLOAT INT CHAR
 %token <t> IF ELSE FOR WHILE
 %token <t> EQ LE GE DIFF
 
 %type <t> factor mag term compare expr rvalue stmt_list compoundstmt stmt whileStmt optExpr forStmt
-%type <t> type identlist arg arglist function declaration ifStmt elsePart functionList
+%type <t> type identlist arg arglist function declaration ifStmt elsePart functionList functionBody
+%type <t> returnStmt functionCall
 
 //define rules
 %%
 root: 
 | functionList YYEOF {
-    if (error_comp == 1) {
+    if (error_count > 0) {
         printf("Compilation error\n");
         return 1;
     }
@@ -39,10 +41,62 @@ root:
 functionList: functionList function     {$$ = createTree("functionlist", 2, $1, $2);}
 |                                       {DT *t = createTree("epsilon", 0);$$ = createTree("functionList", 1, t);}
 
-function: type IDENTIFIER '(' arglist ')' compoundstmt {
+function: type IDENTIFIER '(' arglist ')' functionBody {
     $$ = createTree("function", 6, $1, $2, $3, $4, $5, $6);
-    free_symbol_table(st);
-    ST* st = create_symbol_table(TABLESIZE);
+    insert_symbol(st_func, $2->children[0]->value, $1->type, 0);
+
+    if ($6->type != $1->type) yyerror(st_vars, st_func, "invalid return type of function %s. expected %s got %s", $2->children[0]->value, get_type_name($1->type), get_type_name($6->type));
+
+    SLLT* as = build_argl($4);
+    SLLT* aux = as;
+
+    while(aux != NULL){
+        int r = insert_func_arg(st_func, $2->children[0]->value, aux->symbol->name, aux->symbol->type);
+        if (r == 1){
+            yyerror(st_vars, st_func, "duplicated argument %s", aux->symbol->name);
+        }
+        aux = aux->next;
+    }
+
+    printf("\n\nSymbol table for function %s", $2->children[0]->value);
+    printST(st_vars);
+    free_symbol_table(st_vars);
+    st_vars = create_symbol_table(TABLESIZE);
+}
+
+functionCall: IDENTIFIER '(' identlist ')' {
+    $$ = createTree("functionCall", 4, $1, $2, $3, $4);
+    DT* ident = $1->children[0];
+    SYB* sb = check_definition(st_vars, st_func, ident->value, 0);
+    if (sb != NULL){
+
+        SLLT* ls = build_identl($3);
+        SLLT* aux = ls;
+        SYB* argsb;
+        while(aux != NULL){
+            argsb = check_definition(st_vars, st_func, aux->symbol->name, 1);
+            if (argsb != NULL) aux->symbol->type = argsb->type;
+            aux = aux->next;
+        }
+        aux = ls;
+        SLLT * aux2 = sb->arglist;
+
+        while(aux != NULL && aux2 != NULL){
+            int type1, type2;
+            type1 = aux->symbol->type;
+            type2 = aux2 ->symbol->type;
+            if(type1 != type2){
+                yyerror(st_vars, st_func, "invalid argument of type %s. expected %s", get_type_name(type1), get_type_name(type2));
+            }
+            aux = aux->next;
+            aux2 = aux2->next;
+        }
+
+        if (aux) yyerror(st_vars, st_func, "too many parameters");
+        if (aux2) yyerror(st_vars, st_func, "lacking parameters");
+
+        $$->type = sb->type;
+    }
 }
 
 arglist: arg      {$$ = createTree("arglist", 1, $1);}
@@ -50,7 +104,7 @@ arglist: arg      {$$ = createTree("arglist", 1, $1);}
 
 arg: type IDENTIFIER {
     $$ = createTree("arg", 2, $1, $2);
-    insert_symbol(st, $2->children[0]->value, $1->type);
+    insert_symbol(st_vars, $2->children[0]->value, $1->type, 1);
 }
 
 stmt: expr ';' {$$ = createTree("stmt", 2, $1, $2);}
@@ -68,25 +122,21 @@ elsePart: ELSE stmt {$$ = createTree("elsePart", 2, $1, $2);}
 
 declaration: type identlist ';' {
     $$ = createTree("declaration", 3, $1, $2, $3);
-    set_unknowns(st, $1->type);
+    SLLT* ls = build_identl($2);
+    SLLT* aux = ls;
+
+    while(aux != NULL){
+        int r = insert_symbol(st_vars, aux->symbol->name, $1->type, 1);
+        if (r == 1){
+            yyerror(st_vars, st_func, "duplicate declaration of variable \"%s\"", $1->children[0]->value);
+        }
+        aux = aux->next;
+    }
+
 }
 
-identlist: IDENTIFIER ',' identlist {
-    $$ = createTree("identlist", 3, $1, $2, $3);
-    int r = insert_symbol(st, $1->children[0]->value, UNKNOWNTYPE);
-    if (r == 1){
-        error_comp = 1;
-        printf("Error: duplicate declaration of variable \"%s\" at line %d\n", $1->children[0]->value, yylineno);
-    }
-}
-| IDENTIFIER                        {
-    $$ = createTree("identlist", 1, $1);
-    int r = insert_symbol(st, $1->children[0]->value, UNKNOWNTYPE);
-    if (r == 1){
-        error_comp = 1;
-        printf("Error: duplicate declaration of variable \"%s\" at line %d\n", $1->children[0]->value, yylineno);
-    }
-}
+identlist: IDENTIFIER ',' identlist { $$ = createTree("identlist", 3, $1, $2, $3); }
+| IDENTIFIER                        { $$ = createTree("identlist", 1, $1); }
 
 type: INT {$$ = createTree("type", 1, $1); $$->type = INTTYPE;}
 | FLOAT   {$$ = createTree("type", 1, $1); $$->type = FLOATTYPE;}
@@ -101,19 +151,21 @@ whileStmt: WHILE '(' expr ')' stmt {$$ = createTree("whileStmt", 5, $1, $2, $3, 
 
 compoundstmt: '{' stmt_list '}' {$$ = createTree("compoundstmt", 3, $1, $2, $3);}
 
+functionBody: '{' stmt_list returnStmt '}'  {$$ = createTree("functionBody", 4, $1, $2, $3, $4); $$->type = $3->type;}
+
+returnStmt: RETURN rvalue ';' {$$ = createTree("returnStmt", 3, $1, $2, $3); $$->type = $2->type;}
+
 stmt_list: stmt_list stmt {$$ = createTree("stmt_list", 2, $1, $2);}
 |                         {DT *t = createTree("epsilon", 0);$$ = createTree("stmt_list", 1, t);}
 
 expr: IDENTIFIER '=' expr    {
     $$ = createTree("expr", 3, $1, $2, $3);
-    SYB* sb = search_for_symbol(st, $1->children[0]->value);
+    SYB* sb = search_for_symbol(st_vars, $1->children[0]->value, 1);
     if (!sb){
-        error_comp = 1;
-        printf("Error: use of undeclared variable \"%s\" at line %d\n", $1->children[0]->value, yylineno);
+        yyerror(st_vars, st_func, "use of undeclared variable \"%s\"", $1->children[0]->value);
     }else{
-        if (sb->type != $3->type && $3->type != ERRORTYPE){
-            error_comp = 1;
-            printf("Error: invalid assignment at line %d expression of type %s cannot be assigned to variable of type %s\n", yylineno, get_type_name($3->type), get_type_name(sb->type));
+        if (sb->type != $3->type){
+            yyerror(st_vars, st_func, "invalid assignment: expression of type %s cannot be assigned to variable of type %s", get_type_name($3->type), get_type_name(sb->type));
         }
     }
     
@@ -145,15 +197,13 @@ term: factor      {$$ = createTree("term", 1, $1); $$->type = $1->type;}
 factor: NUMBER   {$$ = createTree("factor", 1, $1); $$->type = $1->type;}
 | IDENTIFIER     {
     $$ = createTree("factor", 1, $1); 
-    SYB* sb = search_for_symbol(st, $1->children[0]->value);
-    if (!sb){
-        error_comp = 1;
-        printf("Error: use of undeclared variable \"%s\" at line %d\n", $1->children[0]->value, yylineno);
-    }else{
+    SYB* sb = check_definition(st_vars, st_func, $1->children[0]->value, 1);
+    if (sb != NULL){
         $$->type = sb->type;
     }
 }
 | CHAR_VALUE     {$$ = createTree("factor", 1, $1); $$->type = $1->type;}
+| functionCall   {$$ = createTree("factor", 1, $1); $$->type = $1->type;}
 | '(' expr ')'   {$$ = createTree("factor", 3, $1, $2, $3); $$->type = $2->type;}
 | '+' factor     {$$ = createTree("factor", 2, $1, $2); $$->type = $2->type;}
 | '-' factor     {$$ = createTree("factor", 2, $1, $2); $$->type = $2->type;}
@@ -161,6 +211,7 @@ factor: NUMBER   {$$ = createTree("factor", 1, $1); $$->type = $1->type;}
 
 int main(int argc, char** argv){
     //yydebug = 1;
-    ST* symbol_table = create_symbol_table(TABLESIZE);
-    return yyparse(symbol_table);
+    ST* symbol_table_functions = create_symbol_table(TABLESIZE);
+    ST* symbol_table_vars = create_symbol_table(TABLESIZE);
+    return yyparse(symbol_table_vars, symbol_table_functions);
 }
