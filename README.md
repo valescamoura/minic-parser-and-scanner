@@ -34,6 +34,12 @@ Os entregáveis são:
     - Há arquivos de exemplo de código no diretório ```data```.
 - A saída deste programa é uma árvore em dois formatos: arquivo PDF e PNG.
 
+### Limitações
+
+- Parâmetros passados na chamada de funções precisam ser váriaveis previamente declaradas.
+- A gramática não suporta funções recursivas
+- O conflito de SHIFT/REDUCE causado pelo IF/Else é resolvido diretamente pelo bison
+
 ## Distribuição das Tasks:
 
 - [x] BNF

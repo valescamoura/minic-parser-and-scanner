@@ -3,4 +3,5 @@ int main(int a){
     int j;
     int k;
     k = i + j;
+    return 0;
 }

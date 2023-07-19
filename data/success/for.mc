@@ -4,4 +4,5 @@ int main(int a){
     for (i = 0; i < 5; i = i + 1){
         j = j + i;
     }
+    return 0;
 }

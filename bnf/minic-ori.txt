@@ -1,12 +1,15 @@
 FunctionList  -> Functionlist Function
                  | ε
-Function      ->  Type identifier ( ArgList ) CompoundStmt
+Function      ->  Type identifier ( ArgList ) FunctionBody
+FunctionCall  ->  identifier ( ParamList )
 ArgList       ->  Arg
                   | ArgList , Arg
 Arg           ->  Type identifier
 Declaration   ->  Type IdentList ;
 Type          ->  int
                   | float
+ParamList     ->  Rvalue, ParamList
+                  | Rvalue
 IdentList     ->  identifier , IdentList
                   identifier
 Stmt          ->  ForStmt
@@ -31,6 +34,9 @@ WhileStmt     ->  while ( Expr ) Stmt
 IfStmt        ->  if ( Expr ) Stmt ElsePart
 ElsePart      ->  else Stmt
                   | ε
+FunctionBody  ->  { StmtList ReturnStmt }
+ReturnStmt    ->  return Rvalue
+                  | return FunctionCall
 CompoundStmt  ->  { StmtList }
 StmtList      ->  StmtList Stmt
                   | ε
@@ -49,4 +55,5 @@ Factor        ->  ( Expr )
                   | - Factor
                   | + Factor
                   | identifier
+                  | FunctionCall
                   | number

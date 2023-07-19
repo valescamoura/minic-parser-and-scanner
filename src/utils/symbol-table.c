@@ -8,6 +8,7 @@ SYB* create_symbol(char* name, int type){
 
     newSymbol->name = (char*) malloc(sizeof(char)*strlen(name) + 1);
     newSymbol->type = type;
+    newSymbol->arglist = NULL;
 
     strcpy(newSymbol->name, name);
 
@@ -19,17 +20,35 @@ ST* create_symbol_table(int size){
 
     ST* newST = (ST*) malloc(sizeof(ST));
 
-    newST->items = (SYB**) malloc(sizeof(SYB*)*size);
+    newST->symbols = (SYB**) malloc(sizeof(SYB*)*size);
     newST->collision_lists = (SLLT**) malloc(sizeof(SLLT*)*size);
     newST->size = size;
     newST->count = 0;
 
     for(int i = 0; i < size; i++){
-        newST->items[i] = NULL;
+        newST->symbols[i] = NULL;
         newST->collision_lists[i] = NULL;
     }
 
     return newST;
+
+}
+
+int insert_func_arg(ST* table, char* funcname, char* argname, int argtype){
+
+    SYB* symbol = search_for_symbol(table, funcname);
+
+    if (!symbol) return -1;
+
+    SYB* look = search_for_symbol_on_list(symbol->arglist, argname);
+
+    if (look) return 1;
+
+    SYB* newarg = create_symbol(argname, argtype);
+
+    symbol->arglist = insert_symbol_on_list_end(symbol->arglist, newarg);
+
+    return 0;
 
 }
 
@@ -69,7 +88,7 @@ int insert_symbol(ST* table, char* name, int type){
 
     unsigned long index = compute_hash(name, table->size);
 
-    SYB* currentSymbol = table->items[index];
+    SYB* currentSymbol = table->symbols[index];
 
     if (!currentSymbol){
 
@@ -81,7 +100,7 @@ int insert_symbol(ST* table, char* name, int type){
 
         }
 
-        table->items[index] = newSymbol;
+        table->symbols[index] = newSymbol;
         table->count++;
 
     }else{
@@ -99,55 +118,6 @@ int insert_symbol(ST* table, char* name, int type){
     return 0;
 
 }
-
-void set_unknowns(ST* st, int type){
-    
-    for (int i = 0; i < st->size; i++){
-
-        if (st->items[i] != NULL){
-            if (st->items[i]->type == UNKNOWNTYPE) st->items[i]->type = type;
-            SLLT* head = st->collision_lists[i];
-            if (head != NULL){
-                for(head; head != NULL; head = head->next){
-                    if (head->symbol->type == UNKNOWNTYPE) head->symbol->type = type;
-                }
-            }
-        }
-
-    }
-
-}
-
-int check_operation_type(int type1, int type2, char operation, int lineno){
-
-    if (type1 == CHARTYPE && type2 == CHARTYPE){
-        return CHARTYPE;
-    }
-    if (type1 == CHARTYPE || type2 == CHARTYPE){
-        printf("Error: invalid operation %c at line %d between types %s and %s\n", operation, lineno, get_type_name(type1), get_type_name(type2));
-        return ERRORTYPE;
-    }
-
-    return (type1 > type2) ? type1 : type2;
-
-}
-
-/* int check_assignment(int type_var, int type_expr, int lineno){
-
-    if (type_var == CHARTYPE && type_expr == CHARTYPE){
-        return 0;
-    }
-    if (type_var == CHARTYPE || type_expr == CHARTYPE){
-        
-    }
-
-    if (type_var < type_expr){
-        return 1;
-    }
-
-    return 0;
-
-} */
 
 char* get_type_name(int type){
 
@@ -175,7 +145,7 @@ char* get_type_name(int type){
 SYB* search_for_symbol(ST* table, char* name){
 
     unsigned long index = compute_hash(name, table->size);
-    SYB* symbol = table->items[index];
+    SYB* symbol = table->symbols[index];
     SLLT* head = table->collision_lists[index];
 
     if(symbol != NULL){
@@ -190,20 +160,21 @@ SYB* search_for_symbol(ST* table, char* name){
 
 void free_symbol(SYB* symbol){
     free(symbol->name);
+    free_SLLT(symbol->arglist);
     free(symbol);
 }
 
 void free_symbol_table(ST* table){
 
     for(int i = 0; i < table->size; i++){
-        if(table->items[i] != NULL){
-            free_symbol(table->items[i]);
+        if(table->symbols[i] != NULL){
+            free_symbol(table->symbols[i]);
         }
         if(table->collision_lists[i] != NULL){
             free_SLLT(table->collision_lists[i]);
         }
     }
-    free(table->items);
+    free(table->symbols);
     free(table->collision_lists);
     free(table);
 
@@ -216,8 +187,8 @@ void printST(ST* table){
     printf("-----------------------------------------\n");
 
     for (int i = 0; i < table->size; i++){
-        if (table->items[i]){
-            printf("[%d] {%d} %s\n", i, table->items[i]->type, table->items[i]->name);
+        if (table->symbols[i]){
+            printf("[%d] {%d} %s\n", i, table->symbols[i]->type, table->symbols[i]->name);
         }
         SLLT* head = table->collision_lists[i];
         int j = 0;
@@ -251,6 +222,45 @@ SLLT* insert_symbol_on_list(SLLT* head, SYB* symbol){
 
 }
 
+SLLT* combine_lists(SLLT* head, SLLT* tail){
+
+    if(head == NULL) return tail;
+
+    SLLT* aux = head;
+
+    while (aux->next != NULL)
+    {
+        aux = aux->next;
+    }
+    
+    aux->next = tail;
+
+    return head;
+
+}
+
+SLLT* insert_symbol_on_list_end(SLLT* head, SYB* symbol){
+
+    if (!head) {
+        SLLT* new = create_list_item(symbol, NULL);
+        return new;
+    }else if(head->next == NULL){
+        head->next = create_list_item(symbol, NULL);
+        return head;
+    }
+
+    SLLT* temp = head;
+
+    while (temp->next->next){
+        temp = temp->next;
+    }
+    
+    temp->next = create_list_item(symbol, NULL);
+
+    return head;
+
+}
+
 SYB* search_for_symbol_on_list(SLLT* head, char* name){
 
     SLLT* temp = head;
@@ -281,6 +291,21 @@ void free_SLLT(SLLT* head){
         free(temp);
         
     }
+    
+}
+
+void print_list(SLLT* list){
+
+    if (!list) return;
+
+    SLLT* aux = list;
+
+    while (aux != NULL)
+    {
+        printf("->%s", aux->symbol->name);
+        aux = aux->next;
+    }
+    printf("\n");
     
 
 }

@@ -24,7 +24,7 @@ DT* createTree(char* value, int cnum, ...){
     t->value = value; 
     t->cnum = cnum;
     t->id = nodeIdCounter;
-    t->type = ERRORTYPE;
+    t->type = UNKNOWNTYPE;
     t->children = NULL;
     if (cnum > 0){
         t->children = (DT**) malloc(sizeof(DT*)*cnum);
@@ -143,7 +143,4 @@ DT* strToTree(char* value, int length){
 
 }
 
-void yyerror(ST* st, char* msg){
-    printf("%s\n", msg);
-    exit(1);
-}
+

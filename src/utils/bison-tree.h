@@ -1,12 +1,11 @@
-#ifndef bisontree_h
-#define bisontree_h
-
-
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "symbol-table.h"
+
+#ifndef bisontree_h
+#define bisontree_h
 
 typedef struct dt{
     char* value;
@@ -17,13 +16,12 @@ typedef struct dt{
 }DT;
 
 extern int yylineno;
-extern int error_found;
+extern int error_count;
 
 DT* createTree(char* value, int cnum, ...);
 void freeTree(DT* node);
 void generateTreeFile(DT* root);
 void printTree(DT* t);
-void yyerror(ST* st, char* msg);
 DT* strToTree(char* value, int length);
 char* mergeStr(char* s, int n);
 
