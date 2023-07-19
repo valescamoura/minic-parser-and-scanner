@@ -11,28 +11,37 @@ Os entregáveis são:
 - Relatório descrevendo a atuação de cada membro, em caso de trabalho feito em dupla (não serão aceitas entregas feitas por mais do que dois componentes)
 
 
-## Passos para compilar:
+## Como utilizar:
+### Env config
 
-```./compile.sh```
+- Tenha o ```flex``` e o ```bison``` instalados em sua máquina.
+    - Instalação no Linux:
+        - ```sudo apt-get install flex```.
+        - ```sudo apt-get install bison```.
+    - Versão ```flex``` utilizada: ```flex 2.6.4```.
+    - Versão ```bison``` utilizada: ```bison (GNU Bison) 3.8.2```.
+- Necessário instalar ```GraphViz``` para geração da árvore de saída em arquivos PDF/PNG: https://graphviz.org/download/.
+    - Versão utilizada: ```graphviz version 8.0.5 (20230430.1635)```.
+    - Linux: ```sudo apt install graphviz```.
 
-ou:
+### Passos para compilar:
 
-- flex -o lexer.c src/scanner.l
-- bison -d src/parser.y
-- gcc -o parser.out parser.tab.c lexer.c src/utils/bison-tree.c
+- Execute o script compile: ```./compile.sh```.
 
-## Como executar
+### Como executar
 
-```./run.sh data/example.mc```
+- Execute o script run.sh passando como argumento o caminho do arquivo minic que você deseja analizar: ```./run.sh data/example.mc```.
+- A saída deste programa é uma árvore em dois formatos: arquivo PDF e PNG.
 
-## Tasks:
+## Distribuição das Tasks:
 
 - [x] BNF
-    - [x] Adicinar tipo char
-    - [x] Permitir mais de uma Function no código
-- [x] Scanner: flex **(Daniel)**
-- [x] Parser puro: bison **(Daniel)**
-- [ ] Análise semântica de tipo e contexto: bison **(Daniel)**
-- [ ] Conversão de for para goto: bison **(Valesca)**
-- [x] Fazer a função de visualização da árvore utilizando graphviz. **(Valesca)**
-- [x] Montar shell script e instruções de compilação. **(Valesca)**
+    - [x] Adicinar tipo char **(Daniel)**
+    - [x] Permitir mais de uma Function no código **(Daniel)**
+    - [x] Adicionar regra de criação do gotoStmt **(Valesca)**
+- [x] Scanner: flex **(Ambos)**
+- [x] Parser puro: bison **(Ambos)**
+- [x] Análise semântica de tipo e contexto: bison **(Daniel)**
+- [x] Conversão de loops para goto: bison **(Valesca)**
+- [x] Visualização gráfica da árvore utilizando graphviz. **(Valesca)**
+- [x] Montar shell script com instruções de compilação e documentação. **(Valesca)**
