@@ -31,6 +31,7 @@ Os entregáveis são:
 ### Como executar
 
 - Execute o script run.sh passando como argumento o caminho do arquivo minic que você deseja analizar: ```./run.sh data/example.mc```.
+    - Há arquivos de exemplo de código no diretório ```data```.
 - A saída deste programa é uma árvore em dois formatos: arquivo PDF e PNG.
 
 ## Distribuição das Tasks:
