@@ -1,14 +1,28 @@
 #include "bison-tree.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 int nodeIdCounter = 0; // Contador global para atribuir identificadores únicos
+
 void printTreeAux(DT* t, int tabn);
+
+char* mergeStr(char* s, int n) {
+    int originalLen = strlen(s);
+    int numLen = snprintf(NULL, 0, "%d", n);
+    int newLen = originalLen + numLen + 1;
+    char* newString = (char*) malloc(newLen * sizeof(char));
+    sprintf(newString, "%s %d", s, n);
+    return newString;
+}
 
 DT* createTree(char* value, int cnum, ...){
     va_list valist;
 
     DT* t = (DT*) malloc(sizeof(DT));
-    t->value = value;
+    t->value = value; 
     t->cnum = cnum;
+    t->id = nodeIdCounter;
     t->children = NULL;
     if (cnum > 0){
         t->children = (DT**) malloc(sizeof(DT*)*cnum);
@@ -21,6 +35,7 @@ DT* createTree(char* value, int cnum, ...){
     }
 
     va_end(valist);
+    nodeIdCounter++;
     
     return t;
 
@@ -57,7 +72,7 @@ void generateDotFile(DT* root, const char* filename) {
     }
 
     fprintf(fp, "digraph Tree {\n");
-    assignIds(root);
+    // assignIds(root);
     generateDot(fp, root);
     fprintf(fp, "}\n");
 
@@ -77,12 +92,9 @@ void freeTree(DT* node) {
     free(node);
 }
 
-void turnLoopsIntoGoto(DT* root) {}
-
 void generateTreeFile(DT* root) {
-    turnLoopsIntoGoto(root);
     generateDotFile(root, "tree.dot");
-    // Chame o Graphviz para gerar a imagem
+    // Chamar o Graphviz para gerar a imagem
     system("dot -Tpng -o tree.png tree.dot");
     system("dot -Tpdf -o tree.pdf tree.dot");
 }

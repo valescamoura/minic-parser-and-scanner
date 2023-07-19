@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "src/utils/bison-tree.h"
 #define variable 'YYDEBUG'
+int N = 0;
 %}
 
 %union{
@@ -55,12 +56,12 @@ type: INT {$$ = createTree("type", 1, $1);}
 | FLOAT   {$$ = createTree("type", 1, $1);}
 | CHAR    {$$ = createTree("type", 1, $1);}
 
-forStmt: FOR '(' expr ';' optExpr ';' optExpr ')' stmt {$$ = createTree("forStmt", 9, $1, $2, $3, $4, $5, $6, $7, $8, $9);}
+forStmt: FOR '(' expr ';' optExpr ';' optExpr ')' stmt {$$ = createTree("gotoStmt", 12, $3, createTree(mergeStr("label", N), 0), createTree("{", 0), createTree("if", 0), $2, $5, $8, $9, $7, createTree(mergeStr("goto label", N), 0), $4, createTree("}", 0)); N++;}
 
 optExpr: expr {$$ = createTree("optExpr", 1, $1);}
 |             {DT *t = createTree("epsilon", 0);$$ = createTree("optExpr", 1, t);}
 
-whileStmt: WHILE '(' expr ')' stmt {$$ = createTree("whileStmt", 5, $1, $2, $3, $4, $5);}
+whileStmt: WHILE '(' expr ')' stmt {$$ = createTree("gotoStmt", 10, createTree(mergeStr("label", N), 0), createTree("{", 0), createTree("if", 0), $2, $3, $4, $5, createTree(mergeStr("goto label", N), 0), createTree(";", 0), createTree("}", 0)); N++;}
 
 compoundstmt: '{' stmt_list '}' {$$ = createTree("compoundstmt", 3, $1, $2, $3);}
 

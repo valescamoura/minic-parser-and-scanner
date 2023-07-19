@@ -8,7 +8,7 @@ fi
 # fi
 
 echo '===> Running...'
-./parser_program.out < $1  # data/example.mc
+./parser.out < $1  # data/example.mc
 
 echo '===> Done.'
 echo '===> Output in tree.pdf and tree.png.'

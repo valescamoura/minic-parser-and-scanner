@@ -17,9 +17,17 @@ Stmt          ->  ForStmt
                   | Declaration
                   | ;
 ForStmt       ->  for ( Expr ; OptExpr ; OptExpr ) Stmt
+                  | GotoStmt
+
+GotoStmt      -> Label { if (OptExpr) Stmt OptExpr goto Label; } 
+
+Label         -> label_number
+
 OptExpr       ->  Expr
                   | ε
 WhileStmt     ->  while ( Expr ) Stmt
+                  | GotoStmt
+
 IfStmt        ->  if ( Expr ) Stmt ElsePart
 ElsePart      ->  else Stmt
                   | ε
