@@ -59,3 +59,6 @@ parser.tab.c
 parser.tab.h
 lex.yy.c
 lexer.c
+
+#configuration files
+.vscode
