@@ -1,13 +1,15 @@
 FunctionList  -> Functionlist Function
                  | ε
 Function      ->  Type identifier ( ArgList ) FunctionBody
-FunctionCall  ->  identifier ( IdentList )
+FunctionCall  ->  identifier ( ParamList )
 ArgList       ->  Arg
                   | ArgList , Arg
 Arg           ->  Type identifier
 Declaration   ->  Type IdentList ;
 Type          ->  int
                   | float
+ParamList     ->  Rvalue, ParamList
+                  | Rvalue
 IdentList     ->  identifier , IdentList
                   identifier
 Stmt          ->  ForStmt
@@ -16,7 +18,6 @@ Stmt          ->  ForStmt
                   | IfStmt
                   | CompoundStmt
                   | Declaration
-                  | FunctionCall ;#Isso faz sentido ?
                   | ;
 ForStmt       ->  for ( Expr ; OptExpr ; OptExpr ) Stmt
                   | GotoStmt

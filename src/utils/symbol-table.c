@@ -2,12 +2,11 @@
 
 void insert_on_collision_list(ST* table, SYB* symbol, unsigned long index);
 
-SYB* create_symbol(char* name, int type, int isvar){
+SYB* create_symbol(char* name, int type){
 
     SYB* newSymbol = (SYB*) malloc(sizeof(SYB));
 
     newSymbol->name = (char*) malloc(sizeof(char)*strlen(name) + 1);
-    newSymbol->isvar = isvar;
     newSymbol->type = type;
     newSymbol->arglist = NULL;
 
@@ -37,15 +36,15 @@ ST* create_symbol_table(int size){
 
 int insert_func_arg(ST* table, char* funcname, char* argname, int argtype){
 
-    SYB* symbol = search_for_symbol(table, funcname, 0);
+    SYB* symbol = search_for_symbol(table, funcname);
 
     if (!symbol) return -1;
 
-    SYB* look = search_for_symbol_on_list(symbol->arglist, argname, 1);
+    SYB* look = search_for_symbol_on_list(symbol->arglist, argname);
 
     if (look) return 1;
 
-    SYB* newarg = create_symbol(argname, argtype, 1);
+    SYB* newarg = create_symbol(argname, argtype);
 
     symbol->arglist = insert_symbol_on_list_end(symbol->arglist, newarg);
 
@@ -83,9 +82,9 @@ Return -1 if the table is full
 Return 1 if the symbol already is in the table
 Return 0 if the insertion was sucessfull 
 */
-int insert_symbol(ST* table, char* name, int type, int isvar){
+int insert_symbol(ST* table, char* name, int type){
 
-    SYB* newSymbol = create_symbol(name, type, isvar);
+    SYB* newSymbol = create_symbol(name, type);
 
     unsigned long index = compute_hash(name, table->size);
 
@@ -106,10 +105,10 @@ int insert_symbol(ST* table, char* name, int type, int isvar){
 
     }else{
 
-        if (strcmp(currentSymbol->name, name) == 0 && currentSymbol->isvar == isvar){
+        if (strcmp(currentSymbol->name, name) == 0){
             return 1;
         } else {
-            SYB* collided_symbol = search_for_symbol_on_list(table->collision_lists[index], newSymbol->name, isvar);
+            SYB* collided_symbol = search_for_symbol_on_list(table->collision_lists[index], newSymbol->name);
             if (collided_symbol != NULL) return 1;
             insert_on_collision_list(table, newSymbol, index);
         }
@@ -119,55 +118,6 @@ int insert_symbol(ST* table, char* name, int type, int isvar){
     return 0;
 
 }
-
-void set_unknowns(ST* st, int type){
-    
-    for (int i = 0; i < st->size; i++){
-
-        if (st->symbols[i] != NULL){
-            if (st->symbols[i]->type == UNKNOWNTYPE) st->symbols[i]->type = type;
-            SLLT* head = st->collision_lists[i];
-            if (head != NULL){
-                for(head; head != NULL; head = head->next){
-                    if (head->symbol->type == UNKNOWNTYPE) head->symbol->type = type;
-                }
-            }
-        }
-
-    }
-
-}
-
-int check_operation_type(int type1, int type2, char operation, int lineno){
-
-    if (type1 == CHARTYPE && type2 == CHARTYPE){
-        return CHARTYPE;
-    }
-    if (type1 == CHARTYPE || type2 == CHARTYPE){
-        printf("Error: invalid operation %c at line %d between types %s and %s\n", operation, lineno, get_type_name(type1), get_type_name(type2));
-        return ERRORTYPE;
-    }
-
-    return (type1 > type2) ? type1 : type2;
-
-}
-
-/* int check_assignment(int type_var, int type_expr, int lineno){
-
-    if (type_var == CHARTYPE && type_expr == CHARTYPE){
-        return 0;
-    }
-    if (type_var == CHARTYPE || type_expr == CHARTYPE){
-        
-    }
-
-    if (type_var < type_expr){
-        return 1;
-    }
-
-    return 0;
-
-} */
 
 char* get_type_name(int type){
 
@@ -192,16 +142,16 @@ char* get_type_name(int type){
 
 }
 
-SYB* search_for_symbol(ST* table, char* name, int isvar){
+SYB* search_for_symbol(ST* table, char* name){
 
     unsigned long index = compute_hash(name, table->size);
     SYB* symbol = table->symbols[index];
     SLLT* head = table->collision_lists[index];
 
     if(symbol != NULL){
-        if (strcmp(symbol->name, name) == 0 && symbol->isvar == isvar) return symbol;
+        if (strcmp(symbol->name, name) == 0) return symbol;
         if(!head) return NULL;
-        return search_for_symbol_on_list(head, name, isvar);
+        return search_for_symbol_on_list(head, name);
     }
 
     return NULL;
@@ -311,13 +261,13 @@ SLLT* insert_symbol_on_list_end(SLLT* head, SYB* symbol){
 
 }
 
-SYB* search_for_symbol_on_list(SLLT* head, char* name, int isvar){
+SYB* search_for_symbol_on_list(SLLT* head, char* name){
 
     SLLT* temp = head;
 
     while (temp){
         
-        if (strcmp(temp->symbol->name, name) == 0 && temp->symbol->isvar == isvar){
+        if (strcmp(temp->symbol->name, name) == 0){
             return temp->symbol;
         }
 
@@ -359,24 +309,3 @@ void print_list(SLLT* list){
     
 
 }
-
-SYB* check_definition(ST* st_vars, ST* st_func, char* name, int isvar){
-
-    SYB* symb;
-
-    if (isvar){
-        symb = search_for_symbol(st_vars, name, isvar);
-        if (!symb) {
-            yyerror(st_vars, st_func, "use of undeclared variable \"%s\"", name);
-        }
-    }else{
-        symb = search_for_symbol(st_func, name, isvar);
-        if(!symb){
-            yyerror(st_vars, st_func, "use of undeclared function \"%s\"", name);
-        }
-    }
-
-    return symb;
-
-}
-

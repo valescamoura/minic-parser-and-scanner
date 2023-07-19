@@ -17,6 +17,8 @@ int error_count;
 
 %parse-param{ ST* st_func } {ST* st_vars}
 
+%define parse.error detailed
+
 %token <t> NUMBER IDENTIFIER CHAR_VALUE RETURN
 %token <t> '+' '-' '*' '/' '=' '}' '{' ')' '(' ';' ',' '<' '>'
 %token <t> FLOAT INT CHAR
@@ -43,7 +45,7 @@ functionList: functionList function     {$$ = createTree("functionlist", 2, $1, 
 
 function: type IDENTIFIER '(' arglist ')' functionBody {
     $$ = createTree("function", 6, $1, $2, $3, $4, $5, $6);
-    insert_symbol(st_func, $2->children[0]->value, $1->type, 0);
+    insert_symbol(st_func, $2->children[0]->value, $1->type);
 
     if ($6->type != $1->type) yyerror(st_vars, st_func, "invalid return type of function %s. expected %s got %s", $2->children[0]->value, get_type_name($1->type), get_type_name($6->type));
 
@@ -67,15 +69,19 @@ function: type IDENTIFIER '(' arglist ')' functionBody {
 functionCall: IDENTIFIER '(' identlist ')' {
     $$ = createTree("functionCall", 4, $1, $2, $3, $4);
     DT* ident = $1->children[0];
-    SYB* sb = check_definition(st_vars, st_func, ident->value, 0);
+    SYB* sb = check_definition(st_func, ident->value);
     if (sb != NULL){
 
         SLLT* ls = build_identl($3);
         SLLT* aux = ls;
         SYB* argsb;
         while(aux != NULL){
-            argsb = check_definition(st_vars, st_func, aux->symbol->name, 1);
-            if (argsb != NULL) aux->symbol->type = argsb->type;
+            argsb = check_definition(st_vars, aux->symbol->name);
+            if (argsb != NULL) {
+                aux->symbol->type = argsb->type;
+            }else{
+                yyerror(st_vars, st_func, "use of undeclared variable \"%s\"", aux->symbol->name);
+            }
             aux = aux->next;
         }
         aux = ls;
@@ -86,7 +92,7 @@ functionCall: IDENTIFIER '(' identlist ')' {
             type1 = aux->symbol->type;
             type2 = aux2 ->symbol->type;
             if(type1 != type2){
-                yyerror(st_vars, st_func, "invalid argument of type %s. expected %s", get_type_name(type1), get_type_name(type2));
+                yyerror(st_vars, st_func, "invalid argument %s of type %s. expected %s", aux->symbol->name, get_type_name(type1), get_type_name(type2));
             }
             aux = aux->next;
             aux2 = aux2->next;
@@ -96,6 +102,8 @@ functionCall: IDENTIFIER '(' identlist ')' {
         if (aux2) yyerror(st_vars, st_func, "lacking parameters");
 
         $$->type = sb->type;
+    }else{
+        yyerror(st_vars, st_func, "call of undefined function \"%s\"", ident->value);
     }
 }
 
@@ -104,7 +112,7 @@ arglist: arg      {$$ = createTree("arglist", 1, $1);}
 
 arg: type IDENTIFIER {
     $$ = createTree("arg", 2, $1, $2);
-    insert_symbol(st_vars, $2->children[0]->value, $1->type, 1);
+    insert_symbol(st_vars, $2->children[0]->value, $1->type);
 }
 
 stmt: expr ';' {$$ = createTree("stmt", 2, $1, $2);}
@@ -126,7 +134,7 @@ declaration: type identlist ';' {
     SLLT* aux = ls;
 
     while(aux != NULL){
-        int r = insert_symbol(st_vars, aux->symbol->name, $1->type, 1);
+        int r = insert_symbol(st_vars, aux->symbol->name, $1->type);
         if (r == 1){
             yyerror(st_vars, st_func, "duplicate declaration of variable \"%s\"", $1->children[0]->value);
         }
@@ -160,12 +168,12 @@ stmt_list: stmt_list stmt {$$ = createTree("stmt_list", 2, $1, $2);}
 
 expr: IDENTIFIER '=' expr    {
     $$ = createTree("expr", 3, $1, $2, $3);
-    SYB* sb = search_for_symbol(st_vars, $1->children[0]->value, 1);
+    SYB* sb = search_for_symbol(st_vars, $1->children[0]->value);
     if (!sb){
         yyerror(st_vars, st_func, "use of undeclared variable \"%s\"", $1->children[0]->value);
     }else{
         if (sb->type != $3->type){
-            yyerror(st_vars, st_func, "invalid assignment: expression of type %s cannot be assigned to variable of type %s", get_type_name($3->type), get_type_name(sb->type));
+            yyerror(st_vars, st_func, "invalid assignment: expression of type %s cannot be assigned to variable %s of type %s", get_type_name($3->type), sb->name, get_type_name(sb->type));
         }
     }
     
@@ -175,7 +183,11 @@ expr: IDENTIFIER '=' expr    {
 rvalue: rvalue compare mag  {
     $$ = createTree("rvalue", 3, $1, $2, $3); 
     int check = check_operation_type($1->type, $3->type, $2->children[0]->value[0], yylineno);
-    if (check != ERRORTYPE) $$->type = INTTYPE;
+    if (check != ERRORTYPE){
+        $$->type = INTTYPE;
+    } else{
+        $$->type = ERRORTYPE;
+    }
 }
 | mag                       {$$ = createTree("rvalue", 1, $1); $$->type = $1->type;}
 
@@ -197,9 +209,11 @@ term: factor      {$$ = createTree("term", 1, $1); $$->type = $1->type;}
 factor: NUMBER   {$$ = createTree("factor", 1, $1); $$->type = $1->type;}
 | IDENTIFIER     {
     $$ = createTree("factor", 1, $1); 
-    SYB* sb = check_definition(st_vars, st_func, $1->children[0]->value, 1);
+    SYB* sb = check_definition(st_vars, $1->children[0]->value);
     if (sb != NULL){
         $$->type = sb->type;
+    }else{
+        yyerror(st_vars, st_func, "use of undeclared variable \"%s\"", $1->children[0]->value);
     }
 }
 | CHAR_VALUE     {$$ = createTree("factor", 1, $1); $$->type = $1->type;}
