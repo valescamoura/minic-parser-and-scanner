@@ -16,4 +16,6 @@ int main(int i) {
     if (delta == 0) {
         x1 = -b / (2 * a);
     }
+
+    return 0;
 }

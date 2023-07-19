@@ -6,9 +6,10 @@ float soma(float a, float b) {
 }
 
 int main(int argc) {
-    float num1, num2;
+    float num1;
+    int num2;
     num1 = 2.0;
-    num2 = 3.0;
+    num2 = 3;
     float s;
     
     s = soma(num1, num2);

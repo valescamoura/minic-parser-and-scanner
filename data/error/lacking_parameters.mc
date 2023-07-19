@@ -11,7 +11,7 @@ int main(int argc) {
     num2 = 3.0;
     float s;
     
-    s = soma(num1, num2);
+    s = soma(num1);
 
     return 0;
 }
